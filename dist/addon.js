@@ -93,17 +93,49 @@ DOMObserver = (function() {
 module.exports = DOMObserver;
 
 },{}],3:[function(require,module,exports){
-var React, ZendeskTicketMetrics, div, h3, header, ref, section, span;
+var React, ZendeskTicketMetrics, div, formatMinutesToHM, formatMinutesVar, h3, header, ref, section, span;
 
 React = require('react');
 
 ref = React.DOM, div = ref.div, header = ref.header, section = ref.section, span = ref.span, h3 = ref.h3;
 
+formatMinutesToHM = function(minutes) {
+  var h, m;
+  if (!minutes) {
+    minutes = 0;
+  }
+  minutes = parseInt(minutes, 10);
+  h = Math.floor(minutes / 60);
+  m = ('0' + minutes % 60).slice(-2);
+  return h + ":" + m;
+};
+
+formatMinutesVar = function(minutesObj) {
+  if (((minutesObj != null ? minutesObj.business : void 0) != null) && ((minutesObj != null ? minutesObj.calendar : void 0) != null)) {
+    return formatMinutesToHM(minutesObj != null ? minutesObj.business : void 0) + ' / ' + formatMinutesToHM(minutesObj != null ? minutesObj.calendar : void 0);
+  } else {
+    return 'Unknown';
+  }
+};
+
 ZendeskTicketMetrics = React.createFactory(React.createClass({
   render: function() {
+    console.log(this.props);
     return div({
       className: 'ember-view box apps_ticket_sidebar app_view'
-    }, header({}, h3({}, 'Ticket metrics')), section({}, div({}, 'Put metrics here ' + this.props.ticketId)));
+    }, header({}, h3({}, 'Ticket metrics')), section({}, div({}, div({
+      style: {
+        display: 'inline-block',
+        width: 200
+      }
+    }, 'Requester wait time'), div({
+      title: 'business / calendar',
+      style: {
+        display: 'inline-block',
+        width: 120,
+        textAlign: 'right'
+      }
+    }, formatMinutesVar(this.props.requester_wait_time_in_minutes)))));
   }
 }));
 
@@ -21817,7 +21849,7 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":33}],"addon":[function(require,module,exports){
-var React, addonEntry, app, currentTicketId, reactComponent, render, waitForTicket;
+var React, addonEntry, app, currentTicketId, getTicketMetrics, reactComponent, render, waitForTicket;
 
 app = require('./app');
 
@@ -21831,6 +21863,12 @@ render = function(data, workspaceId) {
   }
 };
 
+getTicketMetrics = function(ticketId, workspaceId) {
+  return $.ajax({
+    url: "/api/v2/tickets/" + ticketId + "/metrics.json"
+  });
+};
+
 currentTicketId = null;
 
 waitForTicket = function() {
@@ -21838,18 +21876,18 @@ waitForTicket = function() {
   if (matches = location.href.match(/\.zendesk\.com\/.+\/tickets\/(\d+)/)) {
     ticketId = matches[1];
     if (ticketId !== currentTicketId) {
-      console.log(ticketId);
       currentTicketId = ticketId;
       workspace = $('.ember-view.workspace:visible');
       workspaceId = workspace.attr('id');
       if (app.reactTicketMetricsContainers[workspaceId]) {
         elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
         parent = elem.parentNode;
-        console.log(elem.nextSibling);
-        parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
-        return render({
-          ticketId: ticketId
-        }, workspaceId);
+        return getTicketMetrics(ticketId, workspaceId).then(function(response) {
+          render(response.ticket_metric || {
+            ticket_id: ticketId
+          }, workspaceId);
+          return parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
+        });
       }
     }
   }
@@ -21867,17 +21905,13 @@ addonEntry = {
       setInterval(waitForTicket, 200);
       return app.observer.waitElement('.ember-view.apps.is_active .action_buttons', function(elem) {
         var container, workspace, workspaceId;
-        console.log('observer');
         workspace = $(elem).parents('.ember-view.workspace:first');
         workspaceId = workspace.attr('id');
         if (!app.reactTicketMetricsContainers[workspaceId]) {
           container = document.createElement('div');
           container.className = 'reactContainer';
           app.reactTicketMetricsContainers[workspaceId] = container;
-          currentTicketId = null;
-          return render({
-            ticketId: ticketId
-          }, workspaceId);
+          return currentTicketId = null;
         }
       });
     }

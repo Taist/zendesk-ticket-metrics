@@ -8,12 +8,14 @@ render = (data, workspaceId) ->
   if app.reactTicketMetricsContainers[workspaceId]?
     React.render reactComponent( data ), app.reactTicketMetricsContainers[workspaceId]
 
+getTicketMetrics = (ticketId, workspaceId) ->
+  $.ajax url: "/api/v2/tickets/#{ticketId}/metrics.json"
+
 currentTicketId = null
 waitForTicket = () ->
   if matches = location.href.match /\.zendesk\.com\/.+\/tickets\/(\d+)/
     ticketId = matches[1]
     if ticketId isnt currentTicketId
-      console.log ticketId
       currentTicketId = ticketId
 
       workspace = $('.ember-view.workspace:visible')
@@ -22,10 +24,11 @@ waitForTicket = () ->
       if app.reactTicketMetricsContainers[workspaceId]
         elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons')
         parent = elem.parentNode
-        console.log elem.nextSibling
-        parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
 
-        render { ticketId }, workspaceId
+        getTicketMetrics(ticketId, workspaceId)
+        .then (response) ->
+          render response.ticket_metric or { ticket_id: ticketId } , workspaceId
+          parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
 
 addonEntry =
   start: (_taistApi, entryPoint) ->
@@ -41,8 +44,6 @@ addonEntry =
       setInterval waitForTicket, 200
 
       app.observer.waitElement '.ember-view.apps.is_active .action_buttons', (elem) ->
-        console.log 'observer'
-
         workspace = $(elem).parents('.ember-view.workspace:first')
         workspaceId = workspace.attr 'id'
 
@@ -52,6 +53,5 @@ addonEntry =
           app.reactTicketMetricsContainers[workspaceId] = container
 
           currentTicketId = null
-          render { ticketId }, workspaceId
 
 module.exports = addonEntry
