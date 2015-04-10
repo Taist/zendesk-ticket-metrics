@@ -25,7 +25,7 @@ ZendeskTicketMetrics = React.createFactory React.createClass
         div {},
           div { style: display: 'inline-block', width: 200 }, 'Requester wait time'
           div {
-            title: 'business / calendar'
+            title: 'business hours / calendar hours'
             style:
               display: 'inline-block'
               width: 120

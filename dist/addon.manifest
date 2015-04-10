@@ -4,5 +4,6 @@
   "siteName": "Zendesk",
   "js": "addon.js",
   "shortDescription": "Zendesk ticket metrics",
-  "siteRegexp": "\\.zendesk\\.com"
+  "siteRegexp": "\\.zendesk\\.com",
+  "shortDescription": "Displays requester wait time (bussines and calendar hours) in the Zendesk apps area"
 }
