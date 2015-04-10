@@ -120,7 +120,6 @@ formatMinutesVar = function(minutesObj) {
 
 ZendeskTicketMetrics = React.createFactory(React.createClass({
   render: function() {
-    console.log(this.props);
     return div({
       className: 'ember-view box apps_ticket_sidebar app_view'
     }, header({}, h3({}, 'Ticket metrics')), section({}, div({}, div({
@@ -21872,22 +21871,29 @@ getTicketMetrics = function(ticketId, workspaceId) {
 currentTicketId = null;
 
 waitForTicket = function() {
-  var elem, matches, parent, ticketId, workspace, workspaceId;
+  var elem, matches, parent, ref, ref1, ticketId, workspace, workspaceId;
   if (matches = location.href.match(/\.zendesk\.com\/.+\/tickets\/(\d+)/)) {
     ticketId = matches[1];
-    if (ticketId !== currentTicketId) {
-      currentTicketId = ticketId;
-      workspace = $('.ember-view.workspace:visible');
-      workspaceId = workspace.attr('id');
-      if (app.reactTicketMetricsContainers[workspaceId]) {
+    workspace = $('.ember-view.workspace:visible');
+    workspaceId = workspace.attr('id');
+    if ((workspace != null ? workspace[0] : void 0) != null) {
+      if (ticketId !== currentTicketId) {
+        currentTicketId = ticketId;
+        if (app.reactTicketMetricsContainers[workspaceId]) {
+          elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
+          parent = elem.parentNode;
+          parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
+          getTicketMetrics(ticketId, workspaceId).then(function(response) {
+            return render(response.ticket_metric || {
+              ticket_id: ticketId
+            }, workspaceId);
+          });
+        }
+      }
+      if (!((ref = app.reactTicketMetricsContainers[workspaceId]) != null ? (ref1 = ref.previousSibling) != null ? ref1.className.match('action_buttons') : void 0 : void 0)) {
         elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
         parent = elem.parentNode;
-        return getTicketMetrics(ticketId, workspaceId).then(function(response) {
-          render(response.ticket_metric || {
-            ticket_id: ticketId
-          }, workspaceId);
-          return parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
-        });
+        return parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
       }
     }
   }

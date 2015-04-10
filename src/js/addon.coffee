@@ -15,20 +15,26 @@ currentTicketId = null
 waitForTicket = () ->
   if matches = location.href.match /\.zendesk\.com\/.+\/tickets\/(\d+)/
     ticketId = matches[1]
-    if ticketId isnt currentTicketId
-      currentTicketId = ticketId
+    workspace = $('.ember-view.workspace:visible')
+    workspaceId = workspace.attr 'id'
 
-      workspace = $('.ember-view.workspace:visible')
-      workspaceId = workspace.attr 'id'
+    if workspace?[0]?
+      if ticketId isnt currentTicketId
+        currentTicketId = ticketId
 
-      if app.reactTicketMetricsContainers[workspaceId]
+        if app.reactTicketMetricsContainers[workspaceId]
+          elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons')
+          parent = elem.parentNode
+          parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
+
+          getTicketMetrics(ticketId, workspaceId)
+          .then (response) ->
+            render response.ticket_metric or { ticket_id: ticketId } , workspaceId
+
+      unless app.reactTicketMetricsContainers[workspaceId]?.previousSibling?.className.match 'action_buttons'
         elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons')
         parent = elem.parentNode
-
-        getTicketMetrics(ticketId, workspaceId)
-        .then (response) ->
-          render response.ticket_metric or { ticket_id: ticketId } , workspaceId
-          parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
+        parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
 
 addonEntry =
   start: (_taistApi, entryPoint) ->
