@@ -24,17 +24,20 @@ waitForTicket = () ->
 
         if app.reactTicketMetricsContainers[workspaceId]
           elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons')
-          parent = elem.parentNode
-          parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
+          if elem #APPS container can be invisible on start
+            parent = elem.parentNode
+            parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
 
           getTicketMetrics(ticketId, workspaceId)
           .then (response) ->
             render response.ticket_metric or { ticket_id: ticketId } , workspaceId
 
-      unless app.reactTicketMetricsContainers[workspaceId]?.previousSibling?.className.match 'action_buttons'
-        elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons')
-        parent = elem.parentNode
-        parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
+      if app.reactTicketMetricsContainers[workspaceId]
+        unless app.reactTicketMetricsContainers[workspaceId]?.previousSibling?.className.match 'action_buttons'
+          elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons')
+          if elem #APPS container can be invisible on start
+            parent = elem.parentNode
+            parent.insertBefore app.reactTicketMetricsContainers[workspaceId], elem.nextSibling
 
 addonEntry =
   start: (_taistApi, entryPoint) ->

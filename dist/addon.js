@@ -21881,8 +21881,10 @@ waitForTicket = function() {
         currentTicketId = ticketId;
         if (app.reactTicketMetricsContainers[workspaceId]) {
           elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
-          parent = elem.parentNode;
-          parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
+          if (elem) {
+            parent = elem.parentNode;
+            parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
+          }
           getTicketMetrics(ticketId, workspaceId).then(function(response) {
             return render(response.ticket_metric || {
               ticket_id: ticketId
@@ -21890,10 +21892,14 @@ waitForTicket = function() {
           });
         }
       }
-      if (!((ref = app.reactTicketMetricsContainers[workspaceId]) != null ? (ref1 = ref.previousSibling) != null ? ref1.className.match('action_buttons') : void 0 : void 0)) {
-        elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
-        parent = elem.parentNode;
-        return parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
+      if (app.reactTicketMetricsContainers[workspaceId]) {
+        if (!((ref = app.reactTicketMetricsContainers[workspaceId]) != null ? (ref1 = ref.previousSibling) != null ? ref1.className.match('action_buttons') : void 0 : void 0)) {
+          elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
+          if (elem) {
+            parent = elem.parentNode;
+            return parent.insertBefore(app.reactTicketMetricsContainers[workspaceId], elem.nextSibling);
+          }
+        }
       }
     }
   }
