@@ -1,8 +1,8 @@
 {
-  "id": "taist-bootstrap",
-  "title": "Taist Botstrap",
-  "siteName": "Google",
+  "id": "zendesk-ticket-metrics",
+  "title": "Zendesk ticket metrics",
+  "siteName": "Zendesk",
   "js": "addon.js",
-  "shortDescription": "Sample project for tai.st addon",
-  "siteRegexp": "google\\.\\w{2,4}"
+  "shortDescription": "Zendesk ticket metrics",
+  "siteRegexp": "\\.zendesk\\.com"
 }
