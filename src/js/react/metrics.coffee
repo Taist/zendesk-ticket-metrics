@@ -14,7 +14,7 @@ formatMinutesVar = (minutesObj) ->
   if minutesObj?.business? and minutesObj?.calendar?
     formatMinutesToHM(minutesObj?.business) + ' / ' + formatMinutesToHM(minutesObj?.calendar)
   else
-    'Unknown'
+    '-'
 
 ZendeskTicketMetrics = React.createFactory React.createClass
   render: ->

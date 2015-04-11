@@ -114,7 +114,7 @@ formatMinutesVar = function(minutesObj) {
   if (((minutesObj != null ? minutesObj.business : void 0) != null) && ((minutesObj != null ? minutesObj.calendar : void 0) != null)) {
     return formatMinutesToHM(minutesObj != null ? minutesObj.business : void 0) + ' / ' + formatMinutesToHM(minutesObj != null ? minutesObj.calendar : void 0);
   } else {
-    return 'Unknown';
+    return '-';
   }
 };
 
