@@ -62,22 +62,24 @@ DOMObserver = (function() {
     })(this));
   }
 
-  DOMObserver.prototype.activateMainObserver = function() {
-    var config, target;
+  DOMObserver.prototype.activateMainObserver = function(config) {
+    var target;
     if (!this.isActive) {
       this.isActive = true;
       target = document.querySelector('body');
-      config = {
-        subtree: true,
-        childList: true
-      };
+      if (!config) {
+        config = {
+          subtree: true,
+          childList: true
+        };
+      }
       return this.bodyObserver.observe(target, config);
     }
   };
 
-  DOMObserver.prototype.waitElement = function(selector, action) {
+  DOMObserver.prototype.waitElement = function(selector, action, config) {
     var observer;
-    this.activateMainObserver();
+    this.activateMainObserver(config);
     observer = {
       selector: selector,
       action: action
@@ -21907,7 +21909,7 @@ waitForTicket = function() {
 
 addonEntry = {
   start: function(_taistApi, entryPoint) {
-    var DOMObserver, matches, ticketId;
+    var DOMObserver, matches, ticketId, timer;
     window._app = app;
     app.init(_taistApi);
     DOMObserver = require('./helpers/domObserver');
@@ -21915,7 +21917,7 @@ addonEntry = {
     if (matches = location.href.match(/\.zendesk\.com\/.+\/tickets\/(\d+)/)) {
       ticketId = matches[1];
       setInterval(waitForTicket, 200);
-      return app.observer.waitElement('.ember-view.apps.is_active .action_buttons', function(elem) {
+      app.observer.waitElement('.ember-view.apps.is_active .action_buttons', function(elem) {
         var container, workspace, workspaceId;
         workspace = $(elem).parents('.ember-view.workspace:first');
         workspaceId = workspace.attr('id');
@@ -21924,6 +21926,53 @@ addonEntry = {
           container.className = 'reactContainer';
           app.reactTicketMetricsContainers[workspaceId] = container;
           return currentTicketId = null;
+        }
+      });
+    }
+    if (matches = location.href.match(/\/agent\/filters\/(\d+)/)) {
+      timer = null;
+      return app.observer.waitElement('.filter-grid-list .filter_tickets tr', function(tableRow) {
+        var lastColumn, panelName, ref, ref1, rightPanel, subjectColumn, tagName, td;
+        rightPanel = $(tableRow).parents('.pane.right.section')[0];
+        panelName = (ref = rightPanel.querySelector('header.play h1')) != null ? ref.innerText : void 0;
+        if (panelName !== 'Recently solved tickets') {
+          timer = null;
+        }
+        if (panelName === 'Recently solved tickets') {
+          subjectColumn = tableRow.querySelector('.subject, [data-column-id=subject]');
+          if (subjectColumn) {
+            tagName = subjectColumn.tagName;
+            td = document.createElement(tagName);
+            td.style.width = '70px';
+            td.style.minWidth = '70px';
+            if (tagName.match(/td/i)) {
+              ticketId = (ref1 = subjectColumn.querySelector('a').href.match(/\/(\d)+$/)) != null ? ref1[1] : void 0;
+              td.innerHTML = ticketId;
+              td.className = 'waittime';
+            } else {
+              td.innerHTML = 'Wait time';
+              td.dataset['columnId'] = 'waittime';
+            }
+            lastColumn = tableRow.querySelector('.trailing');
+            lastColumn.parentNode.insertBefore(td, lastColumn);
+            if (tagName.match(/td/i)) {
+              if (!timer) {
+                return timer = setTimeout(function() {
+                  var columns;
+                  columns = tableRow.querySelectorAll('td');
+                  return Array.prototype.forEach.call(columns, function(column) {
+                    var headers;
+                    headers = rightPanel.querySelectorAll("th[data-column-id=" + column.className + "]");
+                    return Array.prototype.forEach.call(headers, function(columnHeader) {
+                      var width;
+                      width = column.offsetWidth;
+                      return columnHeader.setAttribute('style', "widht: " + width + "px; min-width: " + width + "px;");
+                    });
+                  });
+                }, 0);
+              }
+            }
+          }
         }
       });
     }

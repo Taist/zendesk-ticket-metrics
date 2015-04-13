@@ -19,19 +19,17 @@ class DOMObserver
         for selector, observer of @observers
           @checkForAction selector, observer, mutation.target
 
-  activateMainObserver: ->
+  activateMainObserver: (config) ->
     unless @isActive
       @isActive = yes
       target = document.querySelector 'body'
 
-      config =
-        subtree: true
-        childList: true
+      config = { subtree: true, childList: true } unless config
 
       @bodyObserver.observe target, config
 
-  waitElement: (selector, action) ->
-    @activateMainObserver()
+  waitElement: (selector, action, config) ->
+    @activateMainObserver config
     observer = { selector, action }
     @observers[selector] = observer
     @checkForAction selector, observer, document.querySelector 'body'

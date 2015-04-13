@@ -63,4 +63,56 @@ addonEntry =
 
           currentTicketId = null
 
+    if matches = location.href.match /\/agent\/filters\/(\d+)/
+
+      timer = null
+
+      app.observer.waitElement '.filter-grid-list .filter_tickets tr', (tableRow) ->
+        rightPanel = $(tableRow).parents('.pane.right.section')[0]
+        panelName = rightPanel.querySelector('header.play h1')?.innerText
+
+        unless panelName is 'Recently solved tickets'
+          timer = null
+
+        if panelName is 'Recently solved tickets'
+          subjectColumn = tableRow.querySelector '.subject, [data-column-id=subject]'
+
+          if subjectColumn
+
+            tagName = subjectColumn.tagName
+            td = document.createElement tagName
+            td.style.width = '70px'
+            td.style.minWidth = '70px'
+
+            if tagName.match /td/i
+              ticketId = subjectColumn.querySelector('a').href.match(/\/(\d)+$/)?[1]
+              td.innerHTML = ticketId
+              td.className = 'waittime'
+            else
+              td.innerHTML = 'Wait time'
+              td.dataset['columnId'] = 'waittime'
+
+            lastColumn = tableRow.querySelector '.trailing'
+            lastColumn.parentNode.insertBefore td, lastColumn
+
+            if tagName.match /td/i
+
+              # app.observer.waitElement 'th[data-column-id]', (columnHeader) ->
+              #   console.log 'observer', columnHeader.style
+              #   console.log columnHeader
+              # , attributes: true
+
+              unless timer
+                timer = setTimeout ->
+                  columns = tableRow.querySelectorAll 'td'
+                  Array.prototype.forEach.call columns, (column) ->
+                    headers = rightPanel.querySelectorAll "th[data-column-id=#{column.className}]"
+                    Array.prototype.forEach.call headers, (columnHeader) ->
+                      width = column.offsetWidth
+                      columnHeader.setAttribute 'style', "widht: #{width}px; min-width: #{width}px;"
+                      # console.log columnHeader
+                      # console.log columnHeader.style
+                      # console.log width
+                , 0
+
 module.exports = addonEntry
