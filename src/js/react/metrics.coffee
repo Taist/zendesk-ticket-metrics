@@ -2,13 +2,7 @@ React = require 'react'
 
 { div, header, section, span, h3 } = React.DOM
 
-formatMinutesToHM = (minutes) ->
-  minutes = 0 unless minutes
-  minutes = parseInt minutes, 10
-
-  h = Math.floor minutes/60
-  m = ('0' + minutes%60).slice -2
-  return "#{h}:#{m}"
+formatMinutesToHM = require '../helpers/formatMinutesToHM'
 
 formatMinutesVar = (minutesObj) ->
   if minutesObj?.business? and minutesObj?.calendar?
