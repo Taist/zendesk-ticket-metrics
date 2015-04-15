@@ -86,7 +86,7 @@ addonEntry =
               td = document.createElement 'td'
               td.className = 'waittime'
 
-              ticketId = subjectColumn.querySelector('a').href.match(/\/(\d)+$/)?[1]
+              ticketId = subjectColumn.querySelector('a').href.match(/\/(\d+)$/)?[1]
 
               getTicketMetrics(ticketId)
               .then (response) ->
@@ -107,7 +107,7 @@ addonEntry =
 
                 columns = bodyRow.querySelectorAll 'td'
                 Array.prototype.forEach.call columns, (column) ->
-                  headers = rightPanel.querySelectorAll "th[data-column-id=#{column.className}]"
+                  headers = rightPanel.querySelectorAll "th[data-column-id='#{column.className}']"
                   Array.prototype.forEach.call headers, (columnHeader) ->
                     width = column.offsetWidth
                     columnHeader.setAttribute 'style', "widht: #{width}px; min-width: #{width}px;"

@@ -21951,7 +21951,7 @@ addonEntry = {
             if (tagName.match(/td/i)) {
               td = document.createElement('td');
               td.className = 'waittime';
-              ticketId = (ref1 = subjectColumn.querySelector('a').href.match(/\/(\d)+$/)) != null ? ref1[1] : void 0;
+              ticketId = (ref1 = subjectColumn.querySelector('a').href.match(/\/(\d+)$/)) != null ? ref1[1] : void 0;
               return getTicketMetrics(ticketId).then(function(response) {
                 var columns, headSubjects, lastColumn, ref2, waitTime, waitTimeHeaders;
                 waitTime = response != null ? (ref2 = response.ticket_metric) != null ? ref2.requester_wait_time_in_minutes : void 0 : void 0;
@@ -21972,7 +21972,7 @@ addonEntry = {
                 columns = bodyRow.querySelectorAll('td');
                 Array.prototype.forEach.call(columns, function(column) {
                   var headers;
-                  headers = rightPanel.querySelectorAll("th[data-column-id=" + column.className + "]");
+                  headers = rightPanel.querySelectorAll("th[data-column-id='" + column.className + "']");
                   return Array.prototype.forEach.call(headers, function(columnHeader) {
                     var width;
                     width = column.offsetWidth;
