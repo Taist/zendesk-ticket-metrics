@@ -50,8 +50,7 @@ addonEntry =
     DOMObserver = require './helpers/domObserver'
     app.observer = new DOMObserver()
 
-    if matches = location.href.match /\.zendesk\.com\/.+\/tickets\/(\d+)/
-      ticketId = matches[1]
+    if location.href.match /\.zendesk\.com\/.+\/(tickets|filters)\/(\d+)/
 
       setInterval waitForTicket, 200
 
@@ -65,8 +64,6 @@ addonEntry =
           app.reactTicketMetricsContainers[workspaceId] = container
 
           currentTicketId = null
-
-    if matches = location.href.match /\/agent\/filters\/(\d+)/
 
       app.observer.waitElement '.filter-grid-list .filter_tickets tr', (bodyRow) ->
         rightPanel = $(bodyRow).parents('.pane.right.section')[0]

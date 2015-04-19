@@ -21916,13 +21916,12 @@ waitForTicket = function() {
 
 addonEntry = {
   start: function(_taistApi, entryPoint) {
-    var DOMObserver, matches, ticketId;
+    var DOMObserver;
     window._app = app;
     app.init(_taistApi);
     DOMObserver = require('./helpers/domObserver');
     app.observer = new DOMObserver();
-    if (matches = location.href.match(/\.zendesk\.com\/.+\/tickets\/(\d+)/)) {
-      ticketId = matches[1];
+    if (location.href.match(/\.zendesk\.com\/.+\/(tickets|filters)\/(\d+)/)) {
       setInterval(waitForTicket, 200);
       app.observer.waitElement('.ember-view.apps.is_active .action_buttons', function(elem) {
         var container, workspace, workspaceId;
@@ -21935,10 +21934,8 @@ addonEntry = {
           return currentTicketId = null;
         }
       });
-    }
-    if (matches = location.href.match(/\/agent\/filters\/(\d+)/)) {
       return app.observer.waitElement('.filter-grid-list .filter_tickets tr', function(bodyRow) {
-        var panelName, ref, ref1, rightPanel, subjectColumn, tagName, td, timer;
+        var panelName, ref, ref1, rightPanel, subjectColumn, tagName, td, ticketId, timer;
         rightPanel = $(bodyRow).parents('.pane.right.section')[0];
         panelName = (ref = rightPanel.querySelector('header.play h1')) != null ? ref.innerText : void 0;
         if (panelName !== 'Recently solved tickets') {
