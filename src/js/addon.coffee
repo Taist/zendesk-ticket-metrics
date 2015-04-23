@@ -23,6 +23,8 @@ waitForTicket = () ->
 
     if workspace?[0]?
       if ticketId isnt currentTicketId
+        app.log "wait for ticket #{location.href}"
+        app.log "workspace id is #{workspaceId}"
         currentTicketId = ticketId
 
         if app.reactTicketMetricsContainers[workspaceId]
@@ -50,11 +52,12 @@ addonEntry =
     DOMObserver = require './helpers/domObserver'
     app.observer = new DOMObserver()
 
-    if location.href.match /\.zendesk\.com\/.+\/(tickets|filters)\/(\d+)/
+    if true #location.href.match /\.zendesk\.com\/.+\/(tickets|filters)\/(\d+)/
 
       setInterval waitForTicket, 200
 
       app.observer.waitElement '.ember-view.apps.is_active .action_buttons', (elem) ->
+        app.log "observer on ticket page #{location.href}"
         workspace = $(elem).parents('.ember-view.workspace:first')
         workspaceId = workspace.attr 'id'
 
@@ -69,10 +72,10 @@ addonEntry =
         rightPanel = $(bodyRow).parents('.pane.right.section')[0]
         panelName = rightPanel.querySelector('header.play h1')?.innerText
 
-        unless panelName is 'Recently solved tickets'
-          timer = null
-
         if panelName is 'Recently solved tickets'
+          app.log "observer on list page #{location.href}"
+          app.log "panel name is *#{panelName}*"
+
           subjectColumn = bodyRow.querySelector '.subject'
 
           if subjectColumn

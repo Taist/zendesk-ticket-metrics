@@ -13,7 +13,20 @@ app = {
     app.exapi.setUserData = Q.nbind(api.userData.set, api.userData);
     app.exapi.getUserData = Q.nbind(api.userData.get, api.userData);
     app.exapi.setCompanyData = Q.nbind(api.companyData.set, api.companyData);
-    return app.exapi.getCompanyData = Q.nbind(api.companyData.get, api.companyData);
+    app.exapi.getCompanyData = Q.nbind(api.companyData.get, api.companyData);
+    return app.log = function(message) {
+      var error, errorData, stack, stackInfo;
+      error = new Error();
+      stackInfo = error.stack;
+      stack = stackInfo.split(/\s+at /).slice(2).filter(function(item) {
+        return item.match(/\.require\./);
+      });
+      errorData = {
+        message: message,
+        stack: stack
+      };
+      return app.exapi.setUserData(new Date, errorData);
+    };
   }
 };
 
@@ -21887,6 +21900,8 @@ waitForTicket = function() {
     workspaceId = workspace.attr('id');
     if ((workspace != null ? workspace[0] : void 0) != null) {
       if (ticketId !== currentTicketId) {
+        app.log("wait for ticket " + location.href);
+        app.log("workspace id is " + workspaceId);
         currentTicketId = ticketId;
         if (app.reactTicketMetricsContainers[workspaceId]) {
           elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
@@ -21921,10 +21936,11 @@ addonEntry = {
     app.init(_taistApi);
     DOMObserver = require('./helpers/domObserver');
     app.observer = new DOMObserver();
-    if (location.href.match(/\.zendesk\.com\/.+\/(tickets|filters)\/(\d+)/)) {
+    if (true) {
       setInterval(waitForTicket, 200);
       app.observer.waitElement('.ember-view.apps.is_active .action_buttons', function(elem) {
         var container, workspace, workspaceId;
+        app.log("observer on ticket page " + location.href);
         workspace = $(elem).parents('.ember-view.workspace:first');
         workspaceId = workspace.attr('id');
         if (!app.reactTicketMetricsContainers[workspaceId]) {
@@ -21935,13 +21951,12 @@ addonEntry = {
         }
       });
       return app.observer.waitElement('.filter-grid-list .filter_tickets tr', function(bodyRow) {
-        var panelName, ref, ref1, rightPanel, subjectColumn, tagName, td, ticketId, timer;
+        var panelName, ref, ref1, rightPanel, subjectColumn, tagName, td, ticketId;
         rightPanel = $(bodyRow).parents('.pane.right.section')[0];
         panelName = (ref = rightPanel.querySelector('header.play h1')) != null ? ref.innerText : void 0;
-        if (panelName !== 'Recently solved tickets') {
-          timer = null;
-        }
         if (panelName === 'Recently solved tickets') {
+          app.log("observer on list page " + location.href);
+          app.log("panel name is *" + panelName + "*");
           subjectColumn = bodyRow.querySelector('.subject');
           if (subjectColumn) {
             tagName = subjectColumn.tagName;
