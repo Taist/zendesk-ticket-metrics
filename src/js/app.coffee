@@ -11,6 +11,7 @@ app =
   init: (api) ->
 
     app.api = api
+    app.id = Date.now()
 
     app.exapi.setUserData = Q.nbind api.userData.set, api.userData
     app.exapi.getUserData = Q.nbind api.userData.get, api.userData
@@ -23,7 +24,7 @@ app =
       stackInfo = error.stack
       stack = stackInfo.split(/\s+at /).slice(2).filter (item) ->
         item.match /\.require\./
-      errorData = { message, stack }
+      errorData = { message, appid: app.id, stack }
       app.exapi.setUserData new Date, errorData
 
 module.exports = app

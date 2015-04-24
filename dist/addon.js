@@ -10,6 +10,7 @@ app = {
   reactTicketMetricsContainers: {},
   init: function(api) {
     app.api = api;
+    app.id = Date.now();
     app.exapi.setUserData = Q.nbind(api.userData.set, api.userData);
     app.exapi.getUserData = Q.nbind(api.userData.get, api.userData);
     app.exapi.setCompanyData = Q.nbind(api.companyData.set, api.companyData);
@@ -23,6 +24,7 @@ app = {
       });
       errorData = {
         message: message,
+        appid: app.id,
         stack: stack
       };
       return app.exapi.setUserData(new Date, errorData);
@@ -21900,8 +21902,6 @@ waitForTicket = function() {
     workspaceId = workspace.attr('id');
     if ((workspace != null ? workspace[0] : void 0) != null) {
       if (ticketId !== currentTicketId) {
-        app.log("wait for ticket " + location.href);
-        app.log("workspace id is " + workspaceId);
         currentTicketId = ticketId;
         if (app.reactTicketMetricsContainers[workspaceId]) {
           elem = workspace[0].querySelector('.ember-view.apps.is_active .action_buttons');
@@ -21950,26 +21950,29 @@ addonEntry = {
           return currentTicketId = null;
         }
       });
-      return app.observer.waitElement('.filter-grid-list .filter_tickets tr', function(bodyRow) {
+      return app.observer.waitElement('.filter-grid-list .filter_tickets tr.solved', function(bodyRow) {
         var panelName, ref, ref1, rightPanel, subjectColumn, tagName, td, ticketId;
         rightPanel = $(bodyRow).parents('.pane.right.section')[0];
         panelName = (ref = rightPanel.querySelector('header.play h1')) != null ? ref.innerText : void 0;
         if (panelName === 'Recently solved tickets') {
-          app.log("observer on list page " + location.href);
           app.log("panel name is *" + panelName + "*");
           subjectColumn = bodyRow.querySelector('.subject');
           if (subjectColumn) {
+            app.log('subject column found');
             tagName = subjectColumn.tagName;
             if (tagName.match(/td/i)) {
+              app.log('tagname matched');
               td = document.createElement('td');
               td.className = 'waittime';
               ticketId = (ref1 = subjectColumn.querySelector('a').href.match(/\/(\d+)$/)) != null ? ref1[1] : void 0;
               return getTicketMetrics(ticketId).then(function(response) {
                 var columns, headSubjects, lastColumn, ref2, waitTime, waitTimeHeaders;
+                app.log("received metrics for " + ticketId);
                 waitTime = response != null ? (ref2 = response.ticket_metric) != null ? ref2.requester_wait_time_in_minutes : void 0 : void 0;
                 td.innerHTML = formatMinutesToHM(waitTime.calendar || 0);
                 waitTimeHeaders = rightPanel.querySelectorAll("th[data-column-id=waittime]");
                 if (!waitTimeHeaders.length) {
+                  app.log('wait time header not found');
                   headSubjects = rightPanel.querySelectorAll("th[data-column-id=subject]");
                   Array.prototype.forEach.call(headSubjects, function(column) {
                     var headRow, lastColumn, th;
@@ -21993,6 +21996,8 @@ addonEntry = {
                 });
                 lastColumn = bodyRow.querySelector('.trailing');
                 return lastColumn.parentNode.insertBefore(td, lastColumn);
+              }).fail(function(error) {
+                return app.log(JSON.stringify(error));
               });
             }
           }

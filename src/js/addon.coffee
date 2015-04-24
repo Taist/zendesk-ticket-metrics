@@ -23,8 +23,6 @@ waitForTicket = () ->
 
     if workspace?[0]?
       if ticketId isnt currentTicketId
-        app.log "wait for ticket #{location.href}"
-        app.log "workspace id is #{workspaceId}"
         currentTicketId = ticketId
 
         if app.reactTicketMetricsContainers[workspaceId]
@@ -68,20 +66,21 @@ addonEntry =
 
           currentTicketId = null
 
-      app.observer.waitElement '.filter-grid-list .filter_tickets tr', (bodyRow) ->
+      app.observer.waitElement '.filter-grid-list .filter_tickets tr.solved', (bodyRow) ->
         rightPanel = $(bodyRow).parents('.pane.right.section')[0]
         panelName = rightPanel.querySelector('header.play h1')?.innerText
 
         if panelName is 'Recently solved tickets'
-          app.log "observer on list page #{location.href}"
           app.log "panel name is *#{panelName}*"
 
           subjectColumn = bodyRow.querySelector '.subject'
 
           if subjectColumn
+            app.log 'subject column found'
 
             tagName = subjectColumn.tagName
             if tagName.match /td/i
+              app.log 'tagname matched'
 
               td = document.createElement 'td'
               td.className = 'waittime'
@@ -90,12 +89,14 @@ addonEntry =
 
               getTicketMetrics(ticketId)
               .then (response) ->
+                app.log "received metrics for #{ticketId}"
                 waitTime = response?.ticket_metric?.requester_wait_time_in_minutes
                 td.innerHTML = formatMinutesToHM( waitTime.calendar or 0 )
 
                 waitTimeHeaders = rightPanel.querySelectorAll "th[data-column-id=waittime]"
 
                 unless waitTimeHeaders.length
+                  app.log 'wait time header not found'
                   headSubjects = rightPanel.querySelectorAll("th[data-column-id=subject]")
                   Array.prototype.forEach.call headSubjects, (column) ->
                     headRow = column.parentNode
@@ -114,5 +115,8 @@ addonEntry =
 
                 lastColumn = bodyRow.querySelector '.trailing'
                 lastColumn.parentNode.insertBefore td, lastColumn
+
+              .fail (error) ->
+                app.log JSON.stringify error
 
 module.exports = addonEntry
