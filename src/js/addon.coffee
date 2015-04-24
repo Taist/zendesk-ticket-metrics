@@ -70,7 +70,7 @@ addonEntry =
         rightPanel = $(bodyRow).parents('.pane.right.section')[0]
         panelName = rightPanel.querySelector('header.play h1')?.innerText
 
-        if panelName is 'Recently solved tickets' or panelName is 'Recently updated tickets'
+        if panelName is 'Recently solved tickets'
           app.log "panel name is *#{panelName}*"
 
           subjectColumn = bodyRow.querySelector '.subject'

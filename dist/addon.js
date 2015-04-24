@@ -21954,7 +21954,7 @@ addonEntry = {
         var panelName, ref, ref1, rightPanel, subjectColumn, tagName, td, ticketId;
         rightPanel = $(bodyRow).parents('.pane.right.section')[0];
         panelName = (ref = rightPanel.querySelector('header.play h1')) != null ? ref.innerText : void 0;
-        if (panelName === 'Recently solved tickets' || panelName === 'Recently updated tickets') {
+        if (panelName === 'Recently solved tickets') {
           app.log("panel name is *" + panelName + "*");
           subjectColumn = bodyRow.querySelector('.subject');
           if (subjectColumn) {
