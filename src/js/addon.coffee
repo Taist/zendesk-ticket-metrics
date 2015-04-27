@@ -71,16 +71,16 @@ addonEntry =
         panelName = rightPanel.querySelector('header.play h1')?.innerText
 
         if panelName is 'Recently solved tickets'
-          app.log "panel name is *#{panelName}*"
+          # app.log "panel name is *#{panelName}*"
 
           subjectColumn = bodyRow.querySelector '.subject'
 
           if subjectColumn
-            app.log 'subject column found'
+            # app.log 'subject column found'
 
             tagName = subjectColumn.tagName
             if tagName.match /td/i
-              app.log 'tagname matched'
+              # app.log 'tagname matched'
 
               td = document.createElement 'td'
               td.className = 'waittime'
@@ -96,7 +96,7 @@ addonEntry =
                 waitTimeHeaders = rightPanel.querySelectorAll "th[data-column-id=waittime]"
 
                 unless waitTimeHeaders.length
-                  app.log 'wait time header not found'
+                  # app.log 'wait time header not found'
                   headSubjects = rightPanel.querySelectorAll("th[data-column-id=subject]")
                   Array.prototype.forEach.call headSubjects, (column) ->
                     headRow = column.parentNode

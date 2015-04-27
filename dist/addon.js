@@ -21955,13 +21955,10 @@ addonEntry = {
         rightPanel = $(bodyRow).parents('.pane.right.section')[0];
         panelName = (ref = rightPanel.querySelector('header.play h1')) != null ? ref.innerText : void 0;
         if (panelName === 'Recently solved tickets') {
-          app.log("panel name is *" + panelName + "*");
           subjectColumn = bodyRow.querySelector('.subject');
           if (subjectColumn) {
-            app.log('subject column found');
             tagName = subjectColumn.tagName;
             if (tagName.match(/td/i)) {
-              app.log('tagname matched');
               td = document.createElement('td');
               td.className = 'waittime';
               ticketId = (ref1 = subjectColumn.querySelector('a').href.match(/\/(\d+)$/)) != null ? ref1[1] : void 0;
@@ -21972,7 +21969,6 @@ addonEntry = {
                 td.innerHTML = formatMinutesToHM(waitTime.calendar || 0);
                 waitTimeHeaders = rightPanel.querySelectorAll("th[data-column-id=waittime]");
                 if (!waitTimeHeaders.length) {
-                  app.log('wait time header not found');
                   headSubjects = rightPanel.querySelectorAll("th[data-column-id=subject]");
                   Array.prototype.forEach.call(headSubjects, function(column) {
                     var headRow, lastColumn, th;
